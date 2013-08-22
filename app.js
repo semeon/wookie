@@ -5,9 +5,13 @@
 
 var express = require('express');
 var routes = require('./routes');
-var user = require('./routes/user');
+// var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+
+var projects = require('./routes/projects');
+var appSettings = require('./settings/appSettings');
+var boards = require('./routes/boards');
 
 var app = express();
 
@@ -31,7 +35,8 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/boards/:id', boards.settings);
+app.get('/projects/:id', projects.data);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
