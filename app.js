@@ -1,37 +1,9 @@
-if(process.env.VCAP_SERVICES){
-    var env = JSON.parse(process.env.VCAP_SERVICES);
-    var mongo = env['mongodb-1.8'][0]['credentials'];
-}
-else{
-    var mongo = {
-        "hostname":"localhost",
-        "port":27017,
-        "username":"",
-        "password":"",
-        "name":"",
-        "db":"db"
-    }
-}
-var generate_mongo_url = function(obj){
-    obj.hostname = (obj.hostname || 'localhost');
-    obj.port = (obj.port || 27017);
-    obj.db = (obj.db || 'test');
-    if(obj.username && obj.password){
-        return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
-    }
-    else{
-        return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
-    }
-}
-var mongourl = generate_mongo_url(mongo);
-
-
-
-
+var db = require('./db/mongodb.js');
+var dbUrl = db.url();
 
 var record_visit = function(req, res){
     /* Connect to the DB and auth */
-    require('mongodb').connect(mongourl, function(err, conn){
+    require('mongodb').connect(dbUrl, function(err, conn){
         conn.collection('ips', function(err, coll){
             /* Simple object to insert: ip address and date */
             object_to_insert = { 'ip': req.connection.remoteAddress, 'ts': new Date() };
@@ -49,7 +21,7 @@ var record_visit = function(req, res){
 
 var print_visits = function(req, res){
     /* Connect to the DB and auth */
-    require('mongodb').connect(mongourl, function(err, conn){
+    require('mongodb').connect(dbUrl, function(err, conn){
         conn.collection('ips', function(err, coll){
             coll.find({}, {limit:10, sort:[['_id','desc']]}, function(err, cursor){
                 cursor.toArray(function(err, items){
